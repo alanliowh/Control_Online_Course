@@ -21,7 +21,7 @@ wind_no = 0;
 % 4: for stochastic wind speed, mean wind speed: 15 m/s
 % 5: for stochastic wind speed, mean wind speed: 18 m/s
 
-sim.Tend = 200; % 1200s for step
+sim.Tend = 400; % 1200s for step
 
 %% controller parameters
 
@@ -34,8 +34,8 @@ controller.OpenLoop_Pitch = 6.78; %[deg]
 controller.Kopt = 0; 
 controller.Kp25 = 0  ;
 controller.Ki25 = 0 ; 
-controller.Kp3 = 0; % rad/(rad/s)
-controller.Ki3 =0 ; % rad/(rad)
+controller.Kp3 = 10; % rad/(rad/s)
+controller.Ki3 =2 ; % rad/(rad)
 controller.KK1 = 11.4; % deg
 controller.KK2 = 402.9; % deg^2
 controller.TorqueCtrlRatio = 0; % constant 15 constant power =1 ;constant torque =0;

@@ -21,14 +21,14 @@ wind_no = 0;
 % 4: for stochastic wind speed, mean wind speed: 15 m/s
 % 5: for stochastic wind speed, mean wind speed: 18 m/s
 
-sim.Tend = 200; % 1200s for step
+sim.Tend = 300; % 1200s for step
 
 %% controller parameters
 
 controller.type = 'OL'; % 'OL' : open-loop, 'CL': closed-loop
 %%% --- Open-loop parameters
-controller.OpenLoop_Torque = 1; %[Nm]
-controller.OpenLoop_Pitch = 1; %[deg]
+controller.OpenLoop_Torque = 10e6/1.005; %[Nm]
+controller.OpenLoop_Pitch = 6.78; %[deg]
 
 %%%% ---- Closed-loop parameters
 controller.Kopt = 0; 

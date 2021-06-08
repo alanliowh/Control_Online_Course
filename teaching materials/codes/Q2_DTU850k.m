@@ -7,7 +7,7 @@ addpath WT_Data lib WindFiles;
 mode = 'omega';
 % "omega": turbine model with (1) drive-train and (2) wind speed
 %     x = [omega;wsp] :: omega [rad/s], wsp [m/s]; u = [Qe,theta] :: Qe [Nm], theta [deg]
-% "tower+omega": turbine model with (1) drive-train, (2) tower and (3) wind speed
+% "omega+tower": turbine model with (1) drive-train, (2) tower and (3) wind speed
 %    x = [omega;v; dot_xt ; xt ; ] ::  omega [rad/s], v [m/s], dot_xt [m/s], xt [m];  u = [Qe,theta] :: Qe [Nm], theta [deg]
 
 %% choose wind speed here
