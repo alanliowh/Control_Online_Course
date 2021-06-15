@@ -14,15 +14,17 @@ t = [0:sim.dt:sim.Tend];
 
 %% Simulution
 
-[x,u] = init_sim_array(mode,wsp,controller);
+[x,u,in] = init_sim_array(mode,wsp,controller);
 
-textprogressbar(['Wind Speed file: ',wsp_file_name]);
+upd = textprogressbar(length(t)-1);
 tic
 for i = 1:length(t)-1
     x(2,i) = wsp(i); % update the wind speed
-    [x(:,i+1),u(:,i+1),out] = f_clsystem(x(:,i),u(:,i),turbine,controller,mode);
-    if rem(i,100) == 0
-    textprogressbar(100*i/(length(t)-1));
+    [x(:,i+1),u(:,i+1),out] = f_clsystem(x(:,i),u(:,i),turbine,controller,mode,in);
+     in = out; % update controller parameters
+    if rem(i,1000) == 0
+    %textprogressbar(100*i/(length(t)-1));
+    upd(i);
     end
 end
 toc

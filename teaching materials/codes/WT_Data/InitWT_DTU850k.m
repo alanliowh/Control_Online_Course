@@ -26,6 +26,12 @@ turbine.pitch_tab2 = pitch_tab2;
 turbine.omega_t = 0.624*2*pi; 
 turbine.zeta_t = 0.2;
 turbine.m_t = 4.5176e4;
+A = [-2*turbine.zeta_t*turbine.omega_t -turbine.omega_t^2;1 0];
+B = [1/turbine.m_t;0];
+turbine.dt = 0.01; % s
+sys_tower = c2d(ss(A,B,[],[]),turbine.dt);
+turbine.Ad_tower = sys_tower.A;
+turbine.Bd_tower = sys_tower.B;
 
 
 
@@ -53,8 +59,8 @@ controller.TorqMax = 4.0e5;
 controller.maxPitch = 90*pi/180;
 controller.minPitch = -.5;
 controller.minth = 2 ;% deg
-controller.filt_wind.tau = 2; % constant 36: Time constant for wind speed low pass filter for minimum pitch [1/1P]
-controller.filt_pitch.tau = 1; % constant 37: Time constant for low pass filter for gain-scheduling [1/1P]
+controller.filt_wind.tau = 2*2*pi/controller.ratedOmega; % constant 36: Time constant for wind speed low pass filter for minimum pitch [1/1P]
+controller.filt_pitch.tau = 3*2*pi/controller.ratedOmega; % constant 37: Time constant for low pass filter for gain-scheduling [1/1P]
 controller.filt_omega.f0 = 1.6; % constant 8: Frequency of generator speed filter [Hz]
 controller.filt_omega.zeta = 0.7; %constant 9: Damping ratio of speed filter [-]
 controller.pitch_velmax = 10; % constant 7: maximum pitch velocity [deg/s]

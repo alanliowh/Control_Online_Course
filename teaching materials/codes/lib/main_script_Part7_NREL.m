@@ -3,7 +3,7 @@
 
 %% Initialise parameters and wind speed files
 turbine = [];
-[turbine,controller] = InitWT_NREL5MW(turbine,controller);
+[turbine,controller] = InitWT_DTU10(turbine,controller);
 
 %%% simulation time
 sim.dt = 0.01;
@@ -14,21 +14,18 @@ t = [0:sim.dt:sim.Tend];
 
 %% Simulution
 
-[x,u,in] = init_sim_array(mode,wsp,controller);
-
+[x,u] = init_sim_array(mode,wsp,controller);
 upd = textprogressbar(length(t)-1);
+
 tic
 for i = 1:length(t)-1
     x(2,i) = wsp(i); % update the wind speed
-    [x(:,i+1),u(:,i+1),out] = f_clsystem(x(:,i),u(:,i),turbine,controller,mode,in);
-        in = out;
-    if rem(i,100) == 0
+    [x(:,i+1),u(:,i+1),out] = f_clsystem_NREL(x(:,i),u(:,i),turbine,controller,mode);
+    if rem(i,1000) == 0
     upd(i);
     end
 end
 toc
-
-
 
 %% gen plot
 % "omega": turbine model with (1) drive-train and (2) wind speed

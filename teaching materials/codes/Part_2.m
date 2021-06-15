@@ -1,4 +1,4 @@
-%% Part 2
+%% Part 2: PI exercise
 clear all; close all;
 
 addpath WT_Data lib WindFiles;

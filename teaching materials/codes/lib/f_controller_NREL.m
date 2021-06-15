@@ -111,24 +111,29 @@ GenSpeed_min2 = minOmega/rel_sp_open_Qg;
 GenSpeed_max1 = (2*rel_sp_open_Qg - 1)*ratedOmega;
 GenSpeed_max2 = rel_sp_open_Qg*ratedOmega;
 
-x = f_switch(GenSpeed_min1,GenSpeed_min2,omega);
-minTorq = min(Kopt*omega^2*x,Kopt*GenSpeed_max1^2);
-x = f_switch(GenSpeed_max1,GenSpeed_max2,omega);
-maxTorq = max(Kopt*omega^2*(1-x)+GenTorqueMin_full*x,Kopt*GenSpeed_min2^2);
 
-if in.region == 2
+if region == 2
     switchVar = f_switch(rad2deg(minPitch),controller.minth + rad2deg(minPitch),pitchprev);
-elseif in.region ==3
+elseif region ==3
     switchVar = 1;
 end
-minTorq = (1-switchVar)*minTorq + switchVar*GenTorqueMin_full;
-maxTorq = (1-switchVar)*maxTorq + switchVar*GenTorqueMin_full;
 
 % if omega < minOmega
 %     minTorq = -1e7;
 % end
 
-[elecTorq,Kiterm2] = f_PID_fast(err,Kiterm2,Kp25,Ki25,dt,maxTorq,minTorq);
+%[elecTorq,Kiterm2] = f_PID_fast(err,Kiterm2,Kp25,Ki25,dt,maxTorq,minTorq);
+if omega<=minOmega
+    elecTorq = 0;
+elseif omega > minOmega && omega < GenSpeed_min2
+    elecTorq = (Kopt*GenSpeed_min2^2-0)/(GenSpeed_min2-minOmega)*(omega-minOmega);
+elseif omega>=GenSpeed_min2 && omega<GenSpeed_max1
+    elecTorq = Kopt*omega^2;
+elseif omega>= GenSpeed_max1 && omega < ratedOmega
+    elecTorq = Kopt*GenSpeed_max1^2 + (Prated/ratedOmega - Kopt*GenSpeed_max1^2)/(ratedOmega-GenSpeed_max1)*(omega-GenSpeed_max1);
+elseif omega>=ratedOmega
+    elecTorq=GenTorqueMin_full;
+end
 %PID_gen_var.outmin = minTorq; PID_gen_var.outmax = maxTorq; 
 %[elecTorq,PID_gen_var] = f_PID(dt,1,PID_gen_var,err);
 
@@ -170,8 +175,7 @@ elseif pitch > controller.minth + rad2deg(minPitch)
 end
 
 
-out.maxTorq = maxTorq;
-out.minTorq = minTorq;
+
 out.region = region;
 out.minPitch = minPitch;
 out.pitchfilt = pitchfilt;

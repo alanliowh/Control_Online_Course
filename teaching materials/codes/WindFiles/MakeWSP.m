@@ -14,6 +14,10 @@ switch wind_no
         wsp_file_name = 'WindFiles/Kaimal_15ms.hh';
     case 5
         wsp_file_name = 'WindFiles/Kaimal_18ms.hh';
+    case 6
+        wsp_file_name = 'WindFiles/Part_4_wind.hh';
+    case 7
+        wsp_file_name = 'WindFiles/Part_5_wind.hh';
     otherwise
         error('Please give me an appropriate wind profile!!!');
 end

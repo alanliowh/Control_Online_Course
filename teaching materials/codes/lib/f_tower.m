@@ -19,7 +19,6 @@ rho = turbine.rho;
 Ct_tab2 = turbine.Ct_tab2;
 pitch_tab2 = round(turbine.pitch_tab2,1);
 lambda_tab2 = round(turbine.lambda_tab2,1);
-dt = turbine.dt;
 
 % --- --- find pitch_index
 pitch_index_temp = find(pitch>=pitch_tab2);
@@ -38,13 +37,13 @@ F_t = 1/2*rho*r^2*pi*v.^2*Ct_tab2(lambda_index,pitch_index);
 % B = [1/m_t;0]
 % Discretize
 
-A = [-2*zeta_t*omega_t -omega_t^2;1 0];
-B = [1/m_t;0];
-dt = turbine.dt;
+% A = [-2*zeta_t*omega_t -omega_t^2;1 0];
+% B = [1/m_t;0];
+% dt = turbine.dt;
 
 
-Ad = expm(A*dt);
-Bd = inv(A)*(Ad-eye(2))*B;
+Ad = turbine.Ad_tower;
+Bd = turbine.Bd_tower;
 p_vect = Ad *p_vect +Bd * F_t;
 dotp = p_vect(1);
 p = p_vect(2);

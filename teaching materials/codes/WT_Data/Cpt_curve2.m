@@ -17,6 +17,18 @@
 
 function [Cpt_tab2,lambda_tab2,pitch_tab2]=Cpt_curve2(cptable,n)
 
+if size(cptable.th,2)>1
+    cptable.th = cptable.th';
+end
+if size(cptable.lam,2)>1
+    cptable.lam = cptable.lam';
+end
+if size(cptable.lam,1) == size(cptable.cp,1)
+    if size(cptable.th,1) == size(cptable.cp,2)
+        cptable.cp = cptable.cp';
+        cptable.ct = cptable.ct';
+    end  
+end
 pitch_tab = [-10;cptable.th];
 lambda_tab = [-2;cptable.lam];
 [cptable.pitch_grid,cptable.lambda_grid] = meshgrid(pitch_tab,lambda_tab);
