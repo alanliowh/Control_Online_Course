@@ -31,9 +31,11 @@ turbine.m_t = 900e3;
 A = [-2*turbine.zeta_t*turbine.omega_t -turbine.omega_t^2;1 0];
 B = [1/turbine.m_t;0];
 turbine.dt = 0.01; % s
-sys_tower = c2d(ss(A,B,[],[]),turbine.dt);
-turbine.Ad_tower = sys_tower.A;
-turbine.Bd_tower = sys_tower.B;
+%sys_tower = c2d(ss(A,B,[],[]),turbine.dt);
+M = expm([A,B;zeros(1,length(A)+size(B,2))]);
+A_d = M(1:length(A),1:length(A)); B_d = M(1:length(A),length(A)+1:length(A)+size(B,2));
+turbine.Ad_tower = A_d;
+turbine.Bd_tower = B_d;
 
 
 turbine.J= 0.1570966689E+09;
