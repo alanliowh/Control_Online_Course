@@ -1,9 +1,7 @@
-%% Part 7: Peak shaving, find the steady-state 
-clear all; close all;
-addpath WT_Data lib WindFiles;
-
+%Part_7c: peak shaving steady-state
+clc; close all; clear all;
 %% model complexity
-mode = 'omega';
+mode = 'omega+tower';
 % "omega": turbine model with (1) drive-train and (2) wind speed
 %     x = [omega;wsp] :: omega [rad/s], wsp [m/s]; u = [Qe,theta] :: Qe [Nm], theta [deg]
 % "tower+omega": turbine model with (1) drive-train, (2) tower and (3) wind speed
@@ -11,7 +9,7 @@ mode = 'omega';
 
 %% choose wind speed here
 
-wind_no = 8;
+wind_no = 3;
 
 % 0: Part 1 wind speeds.
 % 1: for step wind speed, time = [0,1200]
@@ -22,7 +20,7 @@ wind_no = 8;
 % 6: Part 4 step from 10 m/s to 12 m/s
 % 7: Part 5 step from 11 m/s to 25 m/s
 % 8: Part 7 step from 4 m/s to 15 m/s
-sim.Tend = 650; % 1200s for step
+sim.Tend = 550; % 1200s for step
 
 %% controller parameters
 
@@ -44,25 +42,13 @@ controller.TorqueCtrlRatio = 1; % constant 15 constant power =1 ;constant torque
 %% simulation script
 main_script;
 
-pitch = u(2,:);
-genTorq = u(1,:);
-omega = x(1,:);
-wsp = x(2,:);
-%% procedure of calculating dQdtheta from a Cp surface
-turbine.wsp_ss = wsp(149/sim.dt:50/sim.dt:end);
-turbine.pitch_ss = pitch(149/sim.dt:50/sim.dt:end);
-turbine.omega_ss = omega(149/sim.dt:50/sim.dt:end);
-turbine.tsr_ss = turbine.omega_ss*turbine.r./turbine.wsp_ss;
-turbine.Ct_ss = turbine.Ct(turbine.tsr_ss,turbine.pitch_ss);
-turbine.thrust_ss = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss.^2.*turbine.Ct_ss;
+gen_plot;
+AEP = sum(u(1,100/turbine.dt:end).*x(1,100/turbine.dt:end))*turbine.dt*1/(60*60*1e6); %J -> MWh
+disp(['AEP_baseline = ',num2str(AEP,5),'MWh'])
 
-turbine.power_ss = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss.^3.*turbine.Cp(turbine.tsr_ss,turbine.pitch_ss);
-subplot(2,2,1);
-plot(turbine.wsp_ss,turbine.power_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Power [W]');
-subplot(2,2,2);
-plot(turbine.wsp_ss,turbine.omega_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Rotor Speed [rad/s]');
-subplot(2,2,3);
-plot(turbine.wsp_ss,turbine.thrust_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Thrust [N]');
-plot(turbine.wsp_ss,ones(1,length(turbine.wsp_ss))*1.3e6,'k--')
-subplot(2,2,4);
-plot(turbine.wsp_ss,turbine.pitch_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Pitch [deg]');
+%% simulate your design
+controller.rel_sp_open_Qg = x;
+main_script;
+gen_plot;
+AEP = sum(u(1,100/turbine.dt:end).*x(1,100/turbine.dt:end))*turbine.dt*1/(60*60*1e6); %J -> MWh
+disp(['AEP_TorqLimit = ',num2str(AEP,5),'MWh'])

@@ -1,10 +1,7 @@
-%% Part 5: Region 3 exercise
-clear all; close all;
-
-addpath WT_Data lib WindFiles;
+%Part_7b: design your own peak shaving strategy
 
 %% model complexity
-mode = 'omega+tower';
+mode = 'omega';
 % "omega": turbine model with (1) drive-train and (2) wind speed
 %     x = [omega;wsp] :: omega [rad/s], wsp [m/s]; u = [Qe,theta] :: Qe [Nm], theta [deg]
 % "tower+omega": turbine model with (1) drive-train, (2) tower and (3) wind speed
@@ -12,7 +9,7 @@ mode = 'omega+tower';
 
 %% choose wind speed here
 
-wind_no = 7;
+wind_no = 8;
 
 % 0: Part 1 wind speeds.
 % 1: for step wind speed, time = [0,1200]
@@ -22,7 +19,8 @@ wind_no = 7;
 % 5: for stochastic wind speed, mean wind speed: 18 m/s
 % 6: Part 4 step from 10 m/s to 12 m/s
 % 7: Part 5 step from 11 m/s to 25 m/s
-sim.Tend = 450; % 1200s for step
+% 8: Part 7 step from 4 m/s to 15 m/s
+sim.Tend = 650; % 1200s for step
 
 %% controller parameters
 
@@ -40,41 +38,32 @@ controller.Ki3 =0.2 ; % rad/(rad)
 controller.KK1 = 0; % deg
 controller.KK2 = 0; % deg^2
 controller.TorqueCtrlRatio = 1; % constant 15 constant power =1 ;constant torque =0;
+pitch_wpdata = importdata('WT_Data\wpdata_DTU10MW_Part7.100');
+controller.pitch_wpdata = @(v) interp1(pitch_wpdata.data(:,1),pitch_wpdata.data(:,2),v);
 
 %% simulation script
 main_script;
 
-%% gen plot
-gen_plot;
+pitch = u(2,:);
+genTorq = u(1,:);
+omega = x(1,:);
+wsp = x(2,:);
 %% procedure of calculating dQdtheta from a Cp surface
 turbine.wsp_ss = wsp(149/sim.dt:50/sim.dt:end);
 turbine.pitch_ss = pitch(149/sim.dt:50/sim.dt:end);
-turbine.tsr_ss = controller.ratedOmega*turbine.r./turbine.wsp_ss;
+turbine.omega_ss = omega(149/sim.dt:50/sim.dt:end);
+turbine.tsr_ss = turbine.omega_ss*turbine.r./turbine.wsp_ss;
+turbine.Ct_ss = turbine.Ct(turbine.tsr_ss,turbine.pitch_ss);
+turbine.thrust_ss = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss.^2.*turbine.Ct_ss;
 
-%%% plot Cp surface
-figure(3)
-contourf(turbine.pitchList,turbine.tsrList,max(turbine.CpTable,0));hold on;
-plot(turbine.pitch_ss,turbine.tsr_ss,'rx','markersize',10);
-xlabel('\theta [deg]');
-ylabel('\lambda [-]')
+turbine.power_ss = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss.^3.*turbine.Cp(turbine.tsr_ss,turbine.pitch_ss);
+subplot(2,2,1);
+plot(turbine.wsp_ss,turbine.power_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Power [W]');
+subplot(2,2,2);
+plot(turbine.wsp_ss,turbine.omega_ss,'x-'); hold on; xlabel('wsp [m/s]');  ylabel('Rotor Speed [rad/s]');
+subplot(2,2,3);
+plot(turbine.wsp_ss,turbine.thrust_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Thrust [N]');
+subplot(2,2,4);
+plot(turbine.wsp_ss,turbine.pitch_ss,'x-'); hold on; xlabel('wsp [m/s]'); ylabel('Pitch [deg]');
 
-%%% gen dQdtheta
-epsilon = 0.01;
-for i = 1:length(turbine.pitch_ss)
-   Q = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss(i)^3.*turbine.Cp(turbine.tsr_ss(i),turbine.pitch_ss(i))/controller.ratedOmega;
-   Qep = 1/2*turbine.rho*turbine.r^2*pi.*turbine.wsp_ss(i)^3.*turbine.Cp(turbine.tsr_ss(i),turbine.pitch_ss(i)-epsilon)/controller.ratedOmega; 
-   turbine.dQdtheta_ss(i) = (Q-Qep)./epsilon;
-end
-
-%%% calculate dQdtheta0, KK1 and KK2
-[dQdtheta0,KK1,KK2] = find_KK1_KK2(turbine.pitch_ss,turbine.dQdtheta_ss);
-
-%%% plot dQdtheta vs pitch
-figure(4)
-plot(turbine.pitch_ss,turbine.dQdtheta_ss,'x','linewidth',2,'markersize',8); hold on;       % plot data
-est_dQdtheta = dQdtheta0.*(1+turbine.pitch_ss/KK1+ turbine.pitch_ss.^2/KK2);                % calculate the fitted dQdtheta
-plot([0,turbine.pitch_ss],[dQdtheta0,est_dQdtheta],'o','linewidth',2,'markersize',8);       % plot fitted dQdtheta
-legend('Original','Fitted');
-ylabel('dQdtheta [Nm/deg]'); xlabel('\theta [deg]');
-grid on
 

@@ -21,11 +21,11 @@ out = Kpterm+ Kiterm;
 if nargin>5
     % limiting on the control action
     if out > outmax
-        Kiterm = (outmax - Kpterm );%-Ki*err*dt);
+        Kiterm = (outmax - Kpterm );
         out = outmax;
     end
     if out < outmin
-        Kiterm = (outmin -Kpterm);%-Ki*err*dt);
+        Kiterm = (outmin -Kpterm);
         out = outmin;
     end
 end

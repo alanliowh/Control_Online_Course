@@ -81,7 +81,7 @@ if nargin <=3
     minPitch = controller.minPitch;
 else
     [vf,filt_wind] = f_lowpass1orderfilt(v,filt_wind,dt);
-    minPitch = deg2rad(GetOptPitch(vf));
+    minPitch = deg2rad(controller.pitch_wpdata(vf));
 end
 
 
@@ -105,7 +105,8 @@ err = omega- omega_ref;
 
 GenTorqueMin_full = Prated/ratedOmega*(1-controller.TorqueCtrlRatio)+ Prated/omega*controller.TorqueCtrlRatio;
 % constraint on the torque output
-rel_sp_open_Qg = 0.95; % constant 35
+rel_sp_open_Qg = controller.rel_sp_open_Qg;
+%rel_sp_open_Qg = 0.95; % constant 35
 GenSpeed_min1 = minOmega;
 GenSpeed_min2 = minOmega/rel_sp_open_Qg;
 GenSpeed_max1 = (2*rel_sp_open_Qg - 1)*ratedOmega;
