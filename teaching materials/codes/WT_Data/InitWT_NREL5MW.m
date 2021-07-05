@@ -37,7 +37,7 @@ A_d = M(1:length(A),1:length(A)); B_d = M(1:length(A),length(A)+1:length(A)+size
 turbine.Ad_tower = A_d;
 turbine.Bd_tower = B_d;
 
-
+turbine.ht = 87.6;% hub height
 
 turbine.J= 4.6519e+07;
 turbine.r = 63;
@@ -66,6 +66,9 @@ controller.filt_pitch.tau = 3*2*pi/controller.ratedOmega; % constant 37: Time co
 controller.filt_omega.f0 = 0.4; % constant 8: Frequency of generator speed filter [Hz]
 controller.filt_omega.zeta = 0.7; %constant 9: Damping ratio of speed filter [-]
 controller.pitch_velmax = 10; % constant 7: maximum pitch velocity [deg/s]
+if ~isfield(controller,'rel_sp_open_Qg')
+    controller.rel_sp_open_Qg = 0.95;
+end
 pitch_wpdata = importdata('WT_Data\wpdata_NREL5MW.100');
 controller.pitch_wpdata = @(v) interp1(pitch_wpdata.data(:,1),pitch_wpdata.data(:,2),v);
 %%% Do not use. Super slow.

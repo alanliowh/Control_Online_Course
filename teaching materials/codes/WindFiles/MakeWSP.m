@@ -18,6 +18,8 @@ switch wind_no
         wsp_file_name = 'WindFiles/Part_4_wind.hh';
     case 7
         wsp_file_name = 'WindFiles/Part_5_wind.hh';
+    case 8
+        wsp_file_name = 'WindFiles/Part_7_wind.hh';
     otherwise
         error('Please give me an appropriate wind profile!!!');
 end
